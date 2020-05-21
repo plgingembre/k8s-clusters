@@ -20,6 +20,7 @@ aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-bo
 sleep 5s
 
 until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE") ]; do
+  echo $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE")
   echo "Automation is running......"
   sleep 5s
   #if [ $(aws ssm get-automation-execution --automation-execution-id "$id" --query 'AutomationExecution.AutomationExecutionStatus' --output text) != "InProgress" ]; then
@@ -35,9 +36,9 @@ until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLU
 done
 
 # Master nodes
-MASTER1_IP=$(nslookup c$CLUSTER_IPm1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-MASTER2_IP=$(nslookup c$CLUSTER_IPm2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-MASTER3_IP=$(nslookup c$CLUSTER_IPm3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+MASTER1_IP=$(nslookup c${CLUSTER_IP}m1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+MASTER2_IP=$(nslookup c${CLUSTER_IP}m2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+MASTER3_IP=$(nslookup c${CLUSTER_IP}m3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 # Worker nodes
 WORKER1_IP=$(nslookup c${CLUSTER_IP}w1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 WORKER2_IP=$(nslookup c${CLUSTER_IP}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
