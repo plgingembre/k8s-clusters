@@ -16,13 +16,16 @@ echo "===> Results of your variables:"
 echo "Cluster ID: $CLUSTER_ID"
 
 # Node preparation in AWS
+echo ""
+echo "===> Creating a CloudFormation stack in AWS named k8s-tests-$CLUSTER_ID"
 aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-cluster.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
 
 # Waiting for CloudFormation to be done
-until [ -z 'echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v CREATE_COMPLETE)' ]; do
-  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep 'ResourceStatus' | grep -v 'CREATE_COMPLETE')"
+echo ""
+until [ ! -z "$(aws cloudformation describe-stacks --stack-name=k8s-tests-$CLUSTER_ID | grep 'CREATE_COMPLETE')" ]; do
+  #echo "$(aws cloudformation describe-stacks --stack-name=k8s-tests-$CLUSTER_ID | grep 'StackStatus')"
   echo "Automation is running......"
-  sleep 5s
+  sleep 20s
 done
 
 # Master nodes
@@ -34,6 +37,8 @@ WORKER1_IP=$(nslookup c${CLUSTER_ID}w1 | grep Address | awk 'END { print }' | se
 WORKER2_IP=$(nslookup c${CLUSTER_ID}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 WORKER3_IP=$(nslookup c${CLUSTER_ID}w3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 
+echo ""
+echo "List of IP addresses for this cluster:"
 # Master nodes IP addresses
 echo "MASTER1_IP is $MASTER1_IP"
 echo "MASTER2_IP is $MASTER2_IP"
@@ -57,6 +62,7 @@ echo "===> List of nodes: ${NODES[@]}"
 echo ""
 echo "===> Creating an inventory file for cluster-$CLUSTER_ID"
 CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
+echo ""
 echo "===> Inventory file:"
 cat inventory/cluster-$CLUSTER_ID/hosts.yml
 
@@ -70,11 +76,18 @@ cat inventory/cluster-$CLUSTER_ID/hosts.yml
 #cat inventory/cluster-$CLUSTER_ID/inventory.yml
 
 echo ""
-echo "===> Replacing "
+echo "===> Replacing cluster-X with cluster-$CLUSTER_ID"
 sed -i 's/cluster-X/cluster-'${CLUSTER_ID}'/g' inventory/cluster-$CLUSTER_ID/group_vars/k8s-cluster/k8s-cluster.yml
 echo "===> Checking result in the file"
 cat inventory/cluster-$CLUSTER_ID/group_vars/k8s-cluster/k8s-cluster.yml | grep cluster-
 
 echo ""
+echo "===> Waiting for 2 min to let init scripts run"
+sleep 2m
+
+echo ""
 echo "===> Installing Kubernetes"
-#ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
+ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
+
+echo ""
+echo "===> Done!"
