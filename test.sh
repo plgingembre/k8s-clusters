@@ -17,22 +17,12 @@ echo "Cluster ID: $CLUSTER_ID"
 
 # Node preparation in AWS
 aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-cluster.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
-sleep 5s
 
-until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE") ]; do
-  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE")"
+# Waiting for CloudFormation to be done
+until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep -v "CREATE_COMPLETE") ]; do
+  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep -v "CREATE_COMPLETE")"
   echo "Automation is running......"
   sleep 5s
-  #if [ $(aws ssm get-automation-execution --automation-execution-id "$id" --query 'AutomationExecution.AutomationExecutionStatus' --output text) != "InProgress" ]; then
-  #   echo "Automation Finished"
-  #   status=$(aws ssm get-automation-execution --automation-execution-id "$id" --query 'AutomationExecution.AutomationExecutionStatus' --output text)
-  #   echo "Automation $status"
-  #   if [$status != "Success"]; then
-  #      exit 3
-  #      echo "Automation $status"
-  #   fi   
-  #  break
-  #fi
 done
 
 # Master nodes
@@ -44,10 +34,11 @@ WORKER1_IP=$(nslookup c${CLUSTER_ID}w1 | grep Address | awk 'END { print }' | se
 WORKER2_IP=$(nslookup c${CLUSTER_ID}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 WORKER3_IP=$(nslookup c${CLUSTER_ID}w3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 
-# Master nodes
+# Master nodes IP addresses
 echo "MASTER1_IP is $MASTER1_IP"
 echo "MASTER2_IP is $MASTER2_IP"
 echo "MASTER3_IP is $MASTER3_IP"
+# Worker nodes IP addresses
 echo "WORKER1_IP is $WORKER1_IP"
 echo "WORKER2_IP is $WORKER2_IP"
 echo "WORKER3_IP is $WORKER3_IP"
