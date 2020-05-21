@@ -19,7 +19,7 @@ echo "Cluster ID: $CLUSTER_ID"
 aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-cluster.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
 sleep 5s
 
-until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE") ]; do
+until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE") ];do
   echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep "CREATE_COMPLETE")"
   echo "Automation is running......"
   sleep 5s
@@ -36,13 +36,13 @@ until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLU
 done
 
 # Master nodes
-MASTER1_IP=$(nslookup c${CLUSTER_IP}m1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-MASTER2_IP=$(nslookup c${CLUSTER_IP}m2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-MASTER3_IP=$(nslookup c${CLUSTER_IP}m3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+MASTER1_IP=$(nslookup c${CLUSTER_ID}m1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+MASTER2_IP=$(nslookup c${CLUSTER_ID}m2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+MASTER3_IP=$(nslookup c${CLUSTER_ID}m3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 # Worker nodes
-WORKER1_IP=$(nslookup c${CLUSTER_IP}w1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-WORKER2_IP=$(nslookup c${CLUSTER_IP}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-WORKER3_IP=$(nslookup c${CLUSTER_IP}w3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+WORKER1_IP=$(nslookup c${CLUSTER_ID}w1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+WORKER2_IP=$(nslookup c${CLUSTER_ID}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+WORKER3_IP=$(nslookup c${CLUSTER_ID}w3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 
 # Master nodes
 echo "MASTER1_IP is $MASTER1_IP"
