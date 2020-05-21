@@ -19,13 +19,13 @@ echo "Cluster ID: $CLUSTER_ID"
 # Declaring variables
 
 # Master nodes
-MASTER1_IP=nslookup c${CLUSTER_IP}m1 | grep Address | awk 'END { print }' | sed s'/Address: //g'
-MASTER2_IP=nslookup c${CLUSTER_IP}m2 | grep Address | awk 'END { print }' | sed s'/Address: //g'
-MASTER3_IP=nslookup c${CLUSTER_IP}m3 | grep Address | awk 'END { print }' | sed s'/Address: //g'
+MASTER1_IP=nslookup c$CLUSTER_IPm1 | grep Address | awk 'END { print }' | sed s'/Address: //g'
+MASTER2_IP=nslookup c$CLUSTER_IPm2 | grep Address | awk 'END { print }' | sed s'/Address: //g'
+MASTER3_IP=nslookup c$CLUSTER_IPm3 | grep Address | awk 'END { print }' | sed s'/Address: //g'
 # Worker nodes
-WORKER1_IP=nslookup c${CLUSTER_IP}w1 | grep Address | awk 'END { print }' | sed s'/Address: //g'
-WORKER2_IP=nslookup c${CLUSTER_IP}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g'
-WORKER3_IP=nslookup c${CLUSTER_IP}w3 | grep Address | awk 'END { print }' | sed s'/Address: //g'
+WORKER1_IP=nslookup "c${CLUSTER_IP}w1" | grep Address | awk 'END { print }' | sed s'/Address: //g'
+WORKER2_IP=nslookup "c${CLUSTER_IP}w2" | grep Address | awk 'END { print }' | sed s'/Address: //g'
+WORKER3_IP=nslookup "c${CLUSTER_IP}w3" | grep Address | awk 'END { print }' | sed s'/Address: //g'
 
 # Node preparation in AWS
 #aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://k8s-tests-clusters.template --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
