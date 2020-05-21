@@ -1,0 +1,569 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Creates a Kubernetes Test Cluster (self-managed) with 1 master and 2 worker nodes",
+
+  "Parameters" : {
+    "SSHKey": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "Must be the name of an existing EC2 KeyPair"
+    },
+    "TestClusterID" : {
+      "Description" : "Test Cluster ID wanted for this stack",
+      "Type" : "Number",
+      "MinValue" : "1",
+      "MaxValue" : "99"
+    }
+  },
+
+  "Mappings": {
+    "Region2Examples" : {
+      "us-east-1"      : { "Examples" : "https://s3.amazonaws.com/cloudformation-examples-us-east-1" },
+      "us-west-2"      : { "Examples" : "https://s3-us-west-2.amazonaws.com/cloudformation-examples-us-west-2" },
+      "us-west-1"      : { "Examples" : "https://s3-us-west-1.amazonaws.com/cloudformation-examples-us-west-1" },
+      "eu-west-1"      : { "Examples" : "https://s3-eu-west-1.amazonaws.com/cloudformation-examples-eu-west-1" },
+      "eu-west-2"      : { "Examples" : "https://s3-eu-west-2.amazonaws.com/cloudformation-examples-eu-west-2" },
+      "eu-west-3"      : { "Examples" : "https://s3-eu-west-3.amazonaws.com/cloudformation-examples-eu-west-3" },
+      "eu-central-1"   : { "Examples" : "https://s3-eu-central-1.amazonaws.com/cloudformation-examples-eu-central-1" },
+      "ap-southeast-1" : { "Examples" : "https://s3-ap-southeast-1.amazonaws.com/cloudformation-examples-ap-southeast-1" },
+      "ap-northeast-1" : { "Examples" : "https://s3-ap-northeast-1.amazonaws.com/cloudformation-examples-ap-northeast-1" },
+      "ap-northeast-2" : { "Examples" : "https://s3-ap-northeast-2.amazonaws.com/cloudformation-examples-ap-northeast-2" },
+      "ap-northeast-3" : { "Examples" : "https://s3-ap-northeast-3.amazonaws.com/cloudformation-examples-ap-northeast-3" },
+      "ap-southeast-2" : { "Examples" : "https://s3-ap-southeast-2.amazonaws.com/cloudformation-examples-ap-southeast-2" },
+      "ap-south-1"     : { "Examples" : "https://s3-ap-south-1.amazonaws.com/cloudformation-examples-ap-south-1" },
+      "us-east-2"      : { "Examples" : "https://s3-us-east-2.amazonaws.com/cloudformation-examples-us-east-2" },
+      "ca-central-1"   : { "Examples" : "https://s3-ca-central-1.amazonaws.com/cloudformation-examples-ca-central-1" },
+      "sa-east-1"      : { "Examples" : "https://s3-sa-east-1.amazonaws.com/cloudformation-examples-sa-east-1" },
+      "cn-north-1"     : { "Examples" : "https://s3.cn-north-1.amazonaws.com.cn/cloudformation-examples-cn-north-1" },
+      "cn-northwest-1" : { "Examples" : "https://s3.cn-northwest-1.amazonaws.com.cn/cloudformation-examples-cn-northwest-1" }
+    },
+
+    "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "HVM64"  },
+      "t2.nano"     : { "Arch" : "HVM64"  },
+      "t3.micro"    : { "Arch" : "HVM64"  },
+      "t2.small"    : { "Arch" : "HVM64"  },
+      "t3.medium"   : { "Arch" : "HVM64"  },
+      "t2.large"    : { "Arch" : "HVM64"  },
+      "m1.small"    : { "Arch" : "HVM64"  },
+      "m1.medium"   : { "Arch" : "HVM64"  },
+      "m1.large"    : { "Arch" : "HVM64"  },
+      "m1.xlarge"   : { "Arch" : "HVM64"  },
+      "m2.xlarge"   : { "Arch" : "HVM64"  },
+      "m2.2xlarge"  : { "Arch" : "HVM64"  },
+      "m2.4xlarge"  : { "Arch" : "HVM64"  },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.large"    : { "Arch" : "HVM64"  },
+      "m4.xlarge"   : { "Arch" : "HVM64"  },
+      "m4.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.4xlarge"  : { "Arch" : "HVM64"  },
+      "m4.10xlarge" : { "Arch" : "HVM64"  },
+      "c1.medium"   : { "Arch" : "HVM64"  },
+      "c1.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.8xlarge"  : { "Arch" : "HVM64"  },
+      "c4.large"    : { "Arch" : "HVM64"  },
+      "c4.xlarge"   : { "Arch" : "HVM64"  },
+      "c4.2xlarge"  : { "Arch" : "HVM64"  },
+      "c4.4xlarge"  : { "Arch" : "HVM64"  },
+      "c4.8xlarge"  : { "Arch" : "HVM64"  },
+      "g2.2xlarge"  : { "Arch" : "HVMG2"  },
+      "g2.8xlarge"  : { "Arch" : "HVMG2"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.8xlarge"  : { "Arch" : "HVM64"  },
+      "i2.xlarge"   : { "Arch" : "HVM64"  },
+      "i2.2xlarge"  : { "Arch" : "HVM64"  },
+      "i2.4xlarge"  : { "Arch" : "HVM64"  },
+      "i2.8xlarge"  : { "Arch" : "HVM64"  },
+      "d2.xlarge"   : { "Arch" : "HVM64"  },
+      "d2.2xlarge"  : { "Arch" : "HVM64"  },
+      "d2.4xlarge"  : { "Arch" : "HVM64"  },
+      "d2.8xlarge"  : { "Arch" : "HVM64"  },
+      "hi1.4xlarge" : { "Arch" : "HVM64"  },
+      "hs1.8xlarge" : { "Arch" : "HVM64"  },
+      "cr1.8xlarge" : { "Arch" : "HVM64"  },
+      "cc2.8xlarge" : { "Arch" : "HVM64"  }
+    },
+
+    "AWSInstanceType2NATArch" : {
+      "t1.micro"    : { "Arch" : "NATHVM64"  },
+      "t2.nano"     : { "Arch" : "NATHVM64"  },
+      "t3.micro"    : { "Arch" : "NATHVM64"  },
+      "t2.small"    : { "Arch" : "NATHVM64"  },
+      "t3.medium"   : { "Arch" : "NATHVM64"  },
+      "t2.large"    : { "Arch" : "NATHVM64"  },
+      "m1.small"    : { "Arch" : "NATHVM64"  },
+      "m1.medium"   : { "Arch" : "NATHVM64"  },
+      "m1.large"    : { "Arch" : "NATHVM64"  },
+      "m1.xlarge"   : { "Arch" : "NATHVM64"  },
+      "m2.xlarge"   : { "Arch" : "NATHVM64"  },
+      "m2.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "m2.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "m3.medium"   : { "Arch" : "NATHVM64"  },
+      "m3.large"    : { "Arch" : "NATHVM64"  },
+      "m3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "m3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "m4.large"    : { "Arch" : "NATHVM64"  },
+      "m4.xlarge"   : { "Arch" : "NATHVM64"  },
+      "m4.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "m4.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "m4.10xlarge" : { "Arch" : "NATHVM64"  },
+      "c1.medium"   : { "Arch" : "NATHVM64"  },
+      "c1.xlarge"   : { "Arch" : "NATHVM64"  },
+      "c3.large"    : { "Arch" : "NATHVM64"  },
+      "c3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "c3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "c3.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "c3.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.large"    : { "Arch" : "NATHVM64"  },
+      "c4.xlarge"   : { "Arch" : "NATHVM64"  },
+      "c4.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "g2.2xlarge"  : { "Arch" : "NATHVMG2"  },
+      "g2.8xlarge"  : { "Arch" : "NATHVMG2"  },
+      "r3.large"    : { "Arch" : "NATHVM64"  },
+      "r3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "r3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "r3.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "r3.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "i2.xlarge"   : { "Arch" : "NATHVM64"  },
+      "i2.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "i2.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "i2.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.xlarge"   : { "Arch" : "NATHVM64"  },
+      "d2.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "hi1.4xlarge" : { "Arch" : "NATHVM64"  },
+      "hs1.8xlarge" : { "Arch" : "NATHVM64"  },
+      "cr1.8xlarge" : { "Arch" : "NATHVM64"  },
+      "cc2.8xlarge" : { "Arch" : "NATHVM64"  }
+    },
+
+    "AWSRegionArch2AMI" : {
+      "us-west-1"        : {"HVM64" : "ami-0bdb828fd58c52235"},
+      "us-west-2"        : {"HVM64" : "ami-0a18d58f4acb1470b"}
+      
+    }
+
+  },
+
+  "Resources": {
+
+    "Master1Ec2InstanceNif1": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "Kubernetes Master Node Host Network Interface 1",
+        "SubnetId": "subnet-0c5f6b74259680d98",
+        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "SourceDestCheck": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master-1", "nif-1" ] ] }
+          },
+          {
+            "Key": "Email",
+            "Value": "pl.gingembre@illumio.com"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Pierre-Louis Gingembre"
+          }
+        ]
+      }
+    },
+
+    "Master1Ec2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": "t3a.small",
+        "ImageId": "ami-04339448818cc22bc",
+        "KeyName": { "Ref": "SSHKey" },
+        "NetworkInterfaces": [
+          {
+            "NetworkInterfaceId": { "Ref": "Master1Ec2InstanceNif1" },
+            "DeviceIndex": "0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master-1" ] ] }
+          },
+          {
+            "Key": "Email",
+            "Value": "pl.gingembre@illumio.com"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Pierre-Louis Gingembre"
+          },
+          {
+            "Key": "Category",
+            "Value": "Test"
+          },
+          {
+            "Key": "Description",
+            "Value": "Kubernetes Master Node"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "# Update the workload\n",
+                "sudo apt update; sudo apt upgrade -y\n",
+                "# Change hostname\n",
+                "sudo hostnamectl set-hostname ",
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "master", "1" ] ] },
+                "\n",
+                "# Add illumio-demo.com domain in search\n",
+                "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
+                "Domains=illumio-demo.com.\n",
+                "EOF\n",
+                "\n",
+                "sudo systemctl restart systemd-resolved.service\n",
+                "# Renew the machine-id\n",
+                "sudo rm -rf /etc/machine-id; sudo rm /var/lib/dbus/machine-id; sudo systemd-machine-id-setup;\n",
+                "# Reboot the node\n",
+                "sudo reboot\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+
+    "Master1Route53ARecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "Master1Ec2InstanceNif1",
+      "Properties": {
+        "HostedZoneName": "illumio-demo.com.",
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Master Node 1 for Test Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "master", "-", "1", ".illumio-demo.com" ] ] },
+        "TTL": "300",
+        "Type": "A",
+        "ResourceRecords" : [
+          {
+            "Fn::GetAtt" : [
+              "Master1Ec2InstanceNif1",
+              "PrimaryPrivateIpAddress"
+            ]
+          }
+        ]
+      }
+    },
+
+    "Master1Route53CnameRecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "Master1Route53ARecord",
+      "Properties": {
+        "HostedZoneName": "illumio-demo.com.",
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Master Node 1 for Test Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "m", "1", ".illumio-demo.com" ] ] },
+        "TTL": "300",
+        "Type": "CNAME",
+        "ResourceRecords" : [ { "Ref": "Master1Route53ARecord" } ]
+      }
+    },
+
+    "Worker1Ec2InstanceNif1": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "Kubernetes Worker Node Host Network Interface 1",
+        "SubnetId": "subnet-0d414c1207f6a6045",
+        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "SourceDestCheck": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker-1", "nif-1" ] ] }
+          },
+          {
+            "Key": "Email",
+            "Value": "pl.gingembre@illumio.com"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Pierre-Louis Gingembre"
+          }
+        ]
+      }
+    },
+
+    "Worker1Ec2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": "t3a.small",
+        "ImageId": "ami-04339448818cc22bc",
+        "KeyName": { "Ref": "SSHKey" },
+        "NetworkInterfaces": [
+          {
+            "NetworkInterfaceId": { "Ref": "Worker1Ec2InstanceNif1" },
+            "DeviceIndex": "0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker-1" ] ] }
+          },
+          {
+            "Key": "Email",
+            "Value": "pl.gingembre@illumio.com"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Pierre-Louis Gingembre"
+          },
+          {
+            "Key": "Category",
+            "Value": "Test"
+          },
+          {
+            "Key": "Description",
+            "Value": "Kubernetes Worker Node"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "# Update the workload\n",
+                "sudo apt update; sudo apt upgrade -y\n",
+                "# Change hostname\n",
+                "sudo hostnamectl set-hostname ",
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "worker", "1" ] ] },
+                "\n",
+                "# Add illumio-demo.com domain in search\n",
+                "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
+                "Domains=illumio-demo.com.\n",
+                "EOF\n",
+                "\n",
+                "sudo systemctl restart systemd-resolved.service\n",
+                "# Renew the machine-id\n",
+                "sudo rm -rf /etc/machine-id; sudo rm /var/lib/dbus/machine-id; sudo systemd-machine-id-setup;\n",
+                "# Reboot the node\n",
+                "sudo reboot\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+
+    "Worker1Route53ARecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "Worker1Ec2InstanceNif1",
+      "Properties": {
+        "HostedZoneName": "illumio-demo.com.",
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Worker Node 1 for Test Cluster", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "worker", "-", "1", ".illumio-demo.com" ] ] },
+        "TTL": "300",
+        "Type": "A",
+        "ResourceRecords" : [
+          {
+            "Fn::GetAtt" : [
+              "Worker1Ec2InstanceNif1",
+              "PrimaryPrivateIpAddress"
+            ]
+          }
+        ]
+      }
+    },
+
+    "Worker1Route53CnameRecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "Worker1Route53ARecord",
+      "Properties": {
+        "HostedZoneName": "illumio-demo.com.",
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Worker Node 1 for Test Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "w", "1", ".illumio-demo.com" ] ] },
+        "TTL": "300",
+        "Type": "CNAME",
+        "ResourceRecords" : [ { "Ref": "Worker1Route53ARecord" } ]
+      }
+    },
+
+    "Worker2Ec2InstanceNif1": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "Kubernetes Worker Node Host Network Interface 1",
+        "SubnetId": "subnet-0cc9d368af225d9f3",
+        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "SourceDestCheck": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker-2", "nif-1" ] ] }
+          },
+          {
+            "Key": "Email",
+            "Value": "pl.gingembre@illumio.com"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Pierre-Louis Gingembre"
+          }
+        ]
+      }
+    },
+
+    "Worker2Ec2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": "t3a.small",
+        "ImageId": "ami-04339448818cc22bc",
+        "KeyName": { "Ref": "SSHKey" },
+        "NetworkInterfaces": [
+          {
+            "NetworkInterfaceId": { "Ref": "Worker2Ec2InstanceNif1" },
+            "DeviceIndex": "0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker-2" ] ] }
+          },
+          {
+            "Key": "Email",
+            "Value": "pl.gingembre@illumio.com"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Pierre-Louis Gingembre"
+          },
+          {
+            "Key": "Category",
+            "Value": "Test"
+          },
+          {
+            "Key": "Description",
+            "Value": "Kubernetes Worker Node"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "# Update the workload\n",
+                "sudo apt update; sudo apt upgrade -y\n",
+                "# Change hostname\n",
+                "sudo hostnamectl set-hostname ",
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "worker", "2"] ] },
+                "\n",
+                "# Add illumio-demo.com domain in search\n",
+                "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
+                "Domains=illumio-demo.com.\n",
+                "EOF\n",
+                "\n",
+                "sudo systemctl restart systemd-resolved.service\n",
+                "# Renew the machine-id\n",
+                "sudo rm -rf /etc/machine-id; sudo rm /var/lib/dbus/machine-id; sudo systemd-machine-id-setup;\n",
+                "# Reboot the node\n",
+                "sudo reboot\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+
+    "Worker2Route53ARecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "Worker2Ec2InstanceNif1",
+      "Properties": {
+        "HostedZoneName": "illumio-demo.com.",
+        "Comment": {
+          "Fn::Join": [ "", [ "Kubernetes Worker Node 2 for Test Cluster", { "Ref": "TestClusterID" } ] ]
+        },
+        "Name": {
+          "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "worker", "-", "2", ".illumio-demo.com" ] ]
+        },
+        "TTL": "300",
+        "Type": "A",
+        "ResourceRecords" : [
+          {
+            "Fn::GetAtt" : [
+              "Worker2Ec2InstanceNif1",
+              "PrimaryPrivateIpAddress"
+            ]
+          }
+        ]
+      }
+    },
+
+    "Worker2Route53CnameRecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "Worker2Route53ARecord",
+      "Properties": {
+        "HostedZoneName": "illumio-demo.com.",
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Worker Node 2 for Test Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "w", "2", ".illumio-demo.com" ] ] },
+        "TTL": "300",
+        "Type": "CNAME",
+        "ResourceRecords" : [ { "Ref": "Worker2Route53ARecord" } ]
+      }
+    }
+
+  },
+
+  "Outputs": {
+    "Master1IP": {
+      "Value": { "Fn::GetAtt": [ "Master1Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "Internal IP 1 of master-1"
+    },
+    "Master1FQDN": {
+      "Value": { "Ref": "Master1Route53ARecord" },
+      "Description": "FQDN of master-1"
+    },
+    "Master1FQDNAlias": {
+      "Value": { "Ref": "Master1Route53CnameRecord" },
+      "Description": "Alias FQDN of master-1"
+    },
+    "Worker1IP": {
+      "Value": { "Fn::GetAtt": [ "Worker1Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "Internal IP 1 of worker-1"
+    },
+    "Worker1FQDN": {
+      "Value": { "Ref": "Worker1Route53ARecord" },
+      "Description": "FQDN of worker-1"
+    },
+    "Worker1FQDNAlias": {
+      "Value": { "Ref": "Worker1Route53CnameRecord" },
+      "Description": "Alias FQDN of worker-1"
+    },
+    "Worker2IP": {
+      "Value": { "Fn::GetAtt": [ "Worker2Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "Internal IP 1 of worker-2"
+    },
+    "Worker2FQDN": {
+      "Value": { "Ref": "Worker2Route53ARecord" },
+      "Description": "FQDN of worker-2"
+    },
+    "Worker2FQDNAlias": {
+      "Value": { "Ref": "Worker2Route53CnameRecord" },
+      "Description": "Alias FQDN of worker-2"
+    }
+  }
+
+}

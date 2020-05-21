@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingtest-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingtest-master
+  template:
+    metadata:
+      labels:
+        app: pingtest-master
+    spec:
+      nodeName: node1
+      containers:
+      - name: pingtest
+        image: busybox
+        imagePullPolicy: Always
+        args:
+          - sleep
+          - infinity
