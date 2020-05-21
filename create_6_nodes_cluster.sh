@@ -20,7 +20,7 @@ aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-bo
 
 # Waiting for CloudFormation to be done
 until [ -z "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep 'ResourceStatus' | grep -v 'CREATE_COMPLETE')" ]; do
-  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep 'ResourceStatus' | grep -v "CREATE_COMPLETE")"
+  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep 'ResourceStatus' | grep -v 'CREATE_COMPLETE')"
   echo "Automation is running......"
   sleep 5s
 done
