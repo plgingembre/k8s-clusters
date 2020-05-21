@@ -20,7 +20,7 @@ aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-bo
 sleep 5s
 
 until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE") ]; do
-  echo $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE")
+  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep "CREATE_COMPLETE")"
   echo "Automation is running......"
   sleep 5s
   #if [ $(aws ssm get-automation-execution --automation-execution-id "$id" --query 'AutomationExecution.AutomationExecutionStatus' --output text) != "InProgress" ]; then
