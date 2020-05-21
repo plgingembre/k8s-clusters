@@ -19,8 +19,8 @@ echo "Cluster ID: $CLUSTER_ID"
 aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-cluster.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
 sleep 5s
 
-until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE") ];do
-  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep "CREATE_COMPLETE")"
+until [ -z $(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE") ]; do
+  echo "$(aws cloudformation list-stack-resources --stack-name=k8s-tests-$CLUSTER_ID | grep ResourceStatus | grep -v "CREATE_COMPLETE")"
   echo "Automation is running......"
   sleep 5s
   #if [ $(aws ssm get-automation-execution --automation-execution-id "$id" --query 'AutomationExecution.AutomationExecutionStatus' --output text) != "InProgress" ]; then
