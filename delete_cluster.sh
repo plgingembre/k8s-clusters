@@ -19,7 +19,7 @@ echo ""
 echo "===> Deleting CloudFormation stack in AWS"
 aws cloudformation delete-stack --stack-name k8s-tests-$CLUSTER_ID
 
-cd ~/kubespray
+cd kubespray
 
 echo ""
 echo "===> Deleting cluster-$CLUSTER_ID folder"
