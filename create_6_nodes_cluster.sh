@@ -61,7 +61,7 @@ echo "===> List of nodes: ${NODES[@]}"
 
 echo ""
 echo "===> Creating an inventory file for cluster-$CLUSTER_ID"
-CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
+KUBE_MASTERS="3" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
 echo ""
 echo "===> Inventory file:"
 cat inventory/cluster-$CLUSTER_ID/hosts.yml
