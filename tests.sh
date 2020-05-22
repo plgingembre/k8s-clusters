@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# This script is to create a Kubernetes cluster in AWS. Goals and Methodology:
-# 1/ launch the cloudformation template to create machines
-# 2/ get the name-to-ip of each node
-# 3/ copy the template
-# 4/ change all variables in the config files of kubespray
+# This script is to validate new additions to main scripts in the same directory
 
 # Prompt the user to get date and locations 
 echo ""
