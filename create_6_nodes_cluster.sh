@@ -68,7 +68,8 @@ echo "Debug - KUBE_MASTERS is $KUBE_MASTERS"
 #CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml
 echo "Debug - CONFIG_FILE is $CONFIG_FILE"
 # Executing script to create the hosts inventory for ansible
-HOST_PREFIX="blah" KUBE_MASTERS_MASTERS="5" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
+#HOST_PREFIX="blah" KUBE_MASTERS_MASTERS="3" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
+KUBE_MASTERS_MASTERS="3" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
 echo ""
 echo "===> Inventory file:"
 cat inventory/cluster-$CLUSTER_ID/hosts.yml
@@ -90,11 +91,11 @@ cat inventory/cluster-$CLUSTER_ID/group_vars/k8s-cluster/k8s-cluster.yml | grep 
 
 echo ""
 echo "===> Waiting for 2 min to let init scripts run"
-#sleep 2m
+sleep 2m
 
-#echo ""
-#echo "===> Installing Kubernetes"
-#ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
+echo ""
+echo "===> Installing Kubernetes"
+ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
 
 echo ""
 echo "===> Done!"
