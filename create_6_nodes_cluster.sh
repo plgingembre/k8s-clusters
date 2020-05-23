@@ -56,18 +56,19 @@ cp -rpvf inventory/template-1/ inventory/cluster-$CLUSTER_ID/
 
 echo ""
 echo "===> Creating the list of nodes for cluster-$CLUSTER_ID"
-declare -a NODES=(master1,$MASTER1_IP master2,$MASTER2_IP master3,$MASTER3_IP worker1,$WORKER1_IP worker2,$WORKER2_IP worker3,$WORKER3_IP)
+#declare -a NODES=(master1,$MASTER1_IP master2,$MASTER2_IP master3,$MASTER3_IP worker1,$WORKER1_IP worker2,$WORKER2_IP worker3,$WORKER3_IP)
+declare -a NODES=($MASTER1_IP $MASTER2_IP $MASTER3_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP)
 echo "===> List of nodes: ${NODES[@]}"
 
 echo ""
 echo "===> Creating an inventory file for cluster-$CLUSTER_ID"
 # Debug outputs
-KUBE_MASTERS="3"
+#KUBE_MASTERS="3"
 echo "Debug - KUBE_MASTERS is $KUBE_MASTERS"
-CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml
+#CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml
 echo "Debug - CONFIG_FILE is $CONFIG_FILE"
 # Executing script to create the hosts inventory for ansible
-python3 contrib/inventory_builder/inventory.py ${NODES[@]}
+HOST_PREFIX="blah" KUBE_MASTERS_MASTERS="5" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
 echo ""
 echo "===> Inventory file:"
 cat inventory/cluster-$CLUSTER_ID/hosts.yml
@@ -89,11 +90,11 @@ cat inventory/cluster-$CLUSTER_ID/group_vars/k8s-cluster/k8s-cluster.yml | grep 
 
 echo ""
 echo "===> Waiting for 2 min to let init scripts run"
-sleep 2m
+#sleep 2m
 
-echo ""
-echo "===> Installing Kubernetes"
-ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
+#echo ""
+#echo "===> Installing Kubernetes"
+#ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
 
 echo ""
 echo "===> Done!"
