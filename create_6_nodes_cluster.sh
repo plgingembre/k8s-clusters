@@ -10,6 +10,7 @@
 echo ""
 echo "===> Plese provide the cluster information:"
 read -p "Enter the cluster ID: " CLUSTER_ID
+read -p "Enter the number of master nodes: " MASTER_NODES
 
 echo ""
 echo "===> Results of your variables:"
@@ -69,7 +70,7 @@ echo "Debug - KUBE_MASTERS is $KUBE_MASTERS"
 echo "Debug - CONFIG_FILE is $CONFIG_FILE"
 # Executing script to create the hosts inventory for ansible
 #HOST_PREFIX="blah" KUBE_MASTERS_MASTERS="3" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
-KUBE_MASTERS_MASTERS="3" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
+KUBE_MASTERS_MASTERS="$MASTER_NODES" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
 echo ""
 echo "===> Inventory file:"
 cat inventory/cluster-$CLUSTER_ID/hosts.yml
