@@ -20,7 +20,7 @@ echo "Number of Master nodes: $MASTER_NODES"
 # Node preparation in AWS
 echo ""
 echo "===> Creating a CloudFormation stack in AWS named k8s-tests-$CLUSTER_ID"
-aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-ubuntu-16-04-v1.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
+aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-centos-7-8-v1.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
 
 # Waiting for CloudFormation to be done
 echo ""
