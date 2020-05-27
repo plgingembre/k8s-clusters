@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Creates 6 Ubuntu 18.04 instances ready for Kubernetes",
+  "Description" : "Creates 6 CentOS 7.8 instances ready for Kubernetes",
 
   "Parameters" : {
     "SSHKey": {
