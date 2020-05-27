@@ -1,0 +1,85 @@
+TO DO:
+- Download kubeconfig from the cluster to ansible-server and push it as a variable env (export KUBECONFIG=/home/ubuntu/.kube/config-cluster-$CLUSTER_ID)
+- Specify the number of nodes in the cluster
+- Specify the version of Kubernetes
+- Specify the network plugin and version
+- Specify the container runtime and version
+- For calico clusters, create the calicoctl.cfg under /etc/calico with the right certs on each node and create CALICO variables on ansible-server
+- Provide an app repo from Illumio
+
+DONE
+- Specify the number of master and worker nodes ==> change the hosts inventory file
+
+
+
+#############################################################################################################
+# Make kubeconfig file available to ubuntu user
+mkdir .kube
+sudo cp /etc/kubernetes/admin.conf .kube/config
+sudo chown ubuntu.ubuntu .kube/config
+
+# Download kubeconfig file on jump host
+scp ubuntu@n1c69:~/.kube/config ~/.kube/config-cluster-69
+
+# Export kubeconfig file as an environment variable on jump host for this session
+export KUBECONFIG=/home/ubuntu/.kube/config-cluster-69
+
+# Create calicoctl config file on node-1
+sudo chmod -Rf 755 /etc/calico/
+sudo chmod -f 644 /etc/calico/certs/*
+sudo chmod -f 666 /etc/calico/calicoctl.cfg
+
+ssh n1c69 sudo cat << EOF >> /etc/calico/calicoctl.cfg
+apiVersion: projectcalico.org/v3
+kind: CalicoAPIConfig
+metadata:
+spec:
+  etcdEndpoints: https://10.0.11.200:2379,https://10.0.12.242:2379,https://10.0.13.9:2379
+  etcdKeyFile: /etc/calico/certs/key.pem
+  etcdCertFile: /etc/calico/certs/cert.crt
+  etcdCACertFile: /etc/calico/certs/ca_cert.crt
+EOF
+
+# Deploy pingtest app
+kubectl apply -f apps/pingtest/pingtest-daemonset.yml
+
+# Insert code to wait until all pingtest pods are in Running and then run the following
+kubectl get pods -o wide | grep Running | awk '{ print $6 }'
+# Insert code to build a list from this list of IP addresses and then iterate in the next for loop to ping these IP addresses
+
+# Force the tunnels between nodes to be UP
+for (( i=1; i<=6; i++)); do
+    echo ""
+    echo "===> Generating traffic from node n${i}c69"
+    ssh n${i}c69 ping -c 1 10.30.25.2 -W 1
+    ssh n${i}c69 ping -c 1 10.30.5.2 -W 1
+    ssh n${i}c69 ping -c 1 10.30.45.2 -W 1
+    ssh n${i}c69 ping -c 1 10.30.157.2 -W 1
+    ssh n${i}c69 ping -c 1 10.30.89.2 -W 1
+    ssh n${i}c69 ping -c 1 10.30.199.1 -W 1
+done
+
+kubectl exec -it pingtest-9vw6b -- sh
+        ping -c 1 10.30.25.2 -W 1; \
+        ping -c 1 10.30.5.2 -W 1; \
+        ping -c 1 10.30.45.2 -W 1; \
+        ping -c 1 10.30.157.2 -W 1; \
+        ping -c 1 10.30.89.2 -W 1; \
+        ping -c 1 10.30.199.1 -W 1
+exit
+
+# Deploy calico test app
+kubectl create -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/00-namespace.yaml
+kubectl create -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/01-management-ui.yaml
+kubectl create -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/02-backend.yaml
+kubectl create -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/03-frontend.yaml
+kubectl create -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/04-client.yaml
+
+
+
+kubectl delete -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/04-client.yaml
+kubectl delete -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/03-frontend.yaml
+kubectl delete -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/02-backend.yaml
+kubectl delete -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/01-management-ui.yaml
+kubectl delete -f https://docs.projectcalico.org/security/tutorials/kubernetes-policy-demo/manifests/00-namespace.yaml
+
