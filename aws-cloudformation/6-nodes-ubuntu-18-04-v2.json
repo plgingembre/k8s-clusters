@@ -161,17 +161,17 @@
 
   "Resources": {
 
-    "Master1Ec2InstanceNif1": {
+    "Node1Ec2InstanceNif1": {
       "Type": "AWS::EC2::NetworkInterface",
       "Properties": {
-        "Description": "Kubernetes Master Node Host Network Interface 1",
+        "Description": "Kubernetes Node 1 Host Network Interface 1",
         "SubnetId": "subnet-0c5f6b74259680d98",
         "GroupSet": [ "sg-094b4dd5355d9ecee" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master", "1", "nif-1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "1", "nif-1" ] ] }
           },
           {
             "Key": "Email",
@@ -185,7 +185,7 @@
       }
     },
 
-    "Master1Ec2Instance": {
+    "Node1Ec2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
@@ -193,14 +193,14 @@
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
-            "NetworkInterfaceId": { "Ref": "Master1Ec2InstanceNif1" },
+            "NetworkInterfaceId": { "Ref": "Node1Ec2InstanceNif1" },
             "DeviceIndex": "0"
           }
         ],
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master", "1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "1" ] ] }
           },
           {
             "Key": "Email",
@@ -216,7 +216,7 @@
           },
           {
             "Key": "Description",
-            "Value": "Kubernetes Master Node"
+            "Value": "Kubernetes Node"
           }
         ],
         "UserData": {
@@ -229,7 +229,7 @@
                 "sudo apt update; sudo apt upgrade -y\n",
                 "# Change hostname\n",
                 "sudo hostnamectl set-hostname ",
-                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "master", "1" ] ] },
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "node", "1" ] ] },
                 "\n",
                 "# Add illumio-demo.com domain in search\n",
                 "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
@@ -248,19 +248,19 @@
       }
     },
 
-    "Master1Route53ARecord": {
+    "Node1Route53ARecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Master1Ec2InstanceNif1",
+      "DependsOn": "Node1Ec2InstanceNif1",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Kubernetes Master Node 1 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "master", "-", "1", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Node 1 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "node", "-", "1", ".cluster", "-", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "A",
         "ResourceRecords" : [
           {
             "Fn::GetAtt" : [
-              "Master1Ec2InstanceNif1",
+              "Node1Ec2InstanceNif1",
               "PrimaryPrivateIpAddress"
             ]
           }
@@ -268,30 +268,30 @@
       }
     },
 
-    "Master1Route53CnameRecord": {
+    "Node1Route53CnameRecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Master1Route53ARecord",
+      "DependsOn": "Node1Route53ARecord",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Master Node 1 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "m", "1", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Node 1 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "n", "1", "c", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "CNAME",
-        "ResourceRecords" : [ { "Ref": "Master1Route53ARecord" } ]
+        "ResourceRecords" : [ { "Ref": "Node1Route53ARecord" } ]
       }
     },
 
-    "Master2Ec2InstanceNif1": {
+    "Node2Ec2InstanceNif1": {
       "Type": "AWS::EC2::NetworkInterface",
       "Properties": {
-        "Description": "Kubernetes Master Node Host Network Interface 1",
+        "Description": "Kubernetes Node 2 Host Network Interface 1",
         "SubnetId": "subnet-004e78dea0bc72471",
         "GroupSet": [ "sg-094b4dd5355d9ecee" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master", "2", "nif-1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "2", "nif-1" ] ] }
           },
           {
             "Key": "Email",
@@ -305,7 +305,7 @@
       }
     },
   
-    "Master2Ec2Instance": {
+    "Node2Ec2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
@@ -313,14 +313,14 @@
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
-            "NetworkInterfaceId": { "Ref": "Master2Ec2InstanceNif1" },
+            "NetworkInterfaceId": { "Ref": "Node2Ec2InstanceNif1" },
             "DeviceIndex": "0"
           }
         ],
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master", "2" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "2" ] ] }
           },
           {
             "Key": "Email",
@@ -336,7 +336,7 @@
           },
           {
             "Key": "Description",
-            "Value": "Kubernetes Master Node"
+            "Value": "Kubernetes Node"
           }
         ],
         "UserData": {
@@ -349,7 +349,7 @@
                 "sudo apt update; sudo apt upgrade -y\n",
                 "# Change hostname\n",
                 "sudo hostnamectl set-hostname ",
-                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "master", "2" ] ] },
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "node", "2" ] ] },
                 "\n",
                 "# Add illumio-demo.com domain in search\n",
                 "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
@@ -368,19 +368,19 @@
       }
     },
   
-    "Master2Route53ARecord": {
+    "Node2Route53ARecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Master2Ec2InstanceNif1",
+      "DependsOn": "Node2Ec2InstanceNif1",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Kubernetes Master Node 2 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "master", "-", "2", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Node 2 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "node", "-", "2", ".cluster", "-", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "A",
         "ResourceRecords" : [
           {
             "Fn::GetAtt" : [
-              "Master2Ec2InstanceNif1",
+              "Node2Ec2InstanceNif1",
               "PrimaryPrivateIpAddress"
             ]
           }
@@ -388,30 +388,30 @@
       }
     },
   
-    "Master2Route53CnameRecord": {
+    "Node2Route53CnameRecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Master2Route53ARecord",
+      "DependsOn": "Node2Route53ARecord",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Master Node 2 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "m", "2", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Node 2 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "n", "2", "c", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "CNAME",
-        "ResourceRecords" : [ { "Ref": "Master2Route53ARecord" } ]
+        "ResourceRecords" : [ { "Ref": "Node2Route53ARecord" } ]
       }
     },
   
-    "Master3Ec2InstanceNif1": {
+    "Node3Ec2InstanceNif1": {
       "Type": "AWS::EC2::NetworkInterface",
       "Properties": {
-        "Description": "Kubernetes Master Node Host Network Interface 1",
+        "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-097cb4efa88a22c03",
         "GroupSet": [ "sg-094b4dd5355d9ecee" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master", "3", "nif-1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "3", "nif-1" ] ] }
           },
           {
             "Key": "Email",
@@ -425,7 +425,7 @@
       }
     },
   
-    "Master3Ec2Instance": {
+    "Node3Ec2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
@@ -433,14 +433,14 @@
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
-            "NetworkInterfaceId": { "Ref": "Master3Ec2InstanceNif1" },
+            "NetworkInterfaceId": { "Ref": "Node3Ec2InstanceNif1" },
             "DeviceIndex": "0"
           }
         ],
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "master", "3" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "3" ] ] }
           },
           {
             "Key": "Email",
@@ -456,7 +456,7 @@
           },
           {
             "Key": "Description",
-            "Value": "Kubernetes Master Node"
+            "Value": "Kubernetes Node"
           }
         ],
         "UserData": {
@@ -469,7 +469,7 @@
                 "sudo apt update; sudo apt upgrade -y\n",
                 "# Change hostname\n",
                 "sudo hostnamectl set-hostname ",
-                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "master", "3" ] ] },
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "node", "3" ] ] },
                 "\n",
                 "# Add illumio-demo.com domain in search\n",
                 "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
@@ -488,19 +488,19 @@
       }
     },
   
-    "Master3Route53ARecord": {
+    "Node3Route53ARecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Master3Ec2InstanceNif1",
+      "DependsOn": "Node3Ec2InstanceNif1",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Kubernetes Master Node 3 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "master", "-", "3", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Node 3 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "node", "-", "3", ".cluster", "-", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "A",
         "ResourceRecords" : [
           {
             "Fn::GetAtt" : [
-              "Master3Ec2InstanceNif1",
+              "Node3Ec2InstanceNif1",
               "PrimaryPrivateIpAddress"
             ]
           }
@@ -508,30 +508,30 @@
       }
     },
   
-    "Master3Route53CnameRecord": {
+    "Node3Route53CnameRecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Master3Route53ARecord",
+      "DependsOn": "Node3Route53ARecord",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Master Node 3 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "m", "3", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Node 3 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "n", "3", "c", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "CNAME",
-        "ResourceRecords" : [ { "Ref": "Master3Route53ARecord" } ]
+        "ResourceRecords" : [ { "Ref": "Node3Route53ARecord" } ]
       }
     },
   
-    "Worker1Ec2InstanceNif1": {
+    "Node4Ec2InstanceNif1": {
       "Type": "AWS::EC2::NetworkInterface",
       "Properties": {
-        "Description": "Kubernetes Worker Node Host Network Interface 1",
+        "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-0d414c1207f6a6045",
         "GroupSet": [ "sg-094b4dd5355d9ecee" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker", "1", "nif-1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "4", "nif-1" ] ] }
           },
           {
             "Key": "Email",
@@ -545,7 +545,7 @@
       }
     },
 
-    "Worker1Ec2Instance": {
+    "Node4Ec2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
@@ -553,14 +553,14 @@
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
-            "NetworkInterfaceId": { "Ref": "Worker1Ec2InstanceNif1" },
+            "NetworkInterfaceId": { "Ref": "Node4Ec2InstanceNif1" },
             "DeviceIndex": "0"
           }
         ],
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker", "1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "4" ] ] }
           },
           {
             "Key": "Email",
@@ -576,7 +576,7 @@
           },
           {
             "Key": "Description",
-            "Value": "Kubernetes Worker Node"
+            "Value": "Kubernetes Node"
           }
         ],
         "UserData": {
@@ -589,7 +589,7 @@
                 "sudo apt update; sudo apt upgrade -y\n",
                 "# Change hostname\n",
                 "sudo hostnamectl set-hostname ",
-                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "worker", "1" ] ] },
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "node", "4" ] ] },
                 "\n",
                 "# Add illumio-demo.com domain in search\n",
                 "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
@@ -608,19 +608,19 @@
       }
     },
 
-    "Worker1Route53ARecord": {
+    "Node4Route53ARecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Worker1Ec2InstanceNif1",
+      "DependsOn": "Node4Ec2InstanceNif1",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Kubernetes Worker Node 1 for Cluster", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "worker", "-", "1", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Node 4 for Cluster", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "node", "-", "4", ".cluster", "-", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "A",
         "ResourceRecords" : [
           {
             "Fn::GetAtt" : [
-              "Worker1Ec2InstanceNif1",
+              "Node4Ec2InstanceNif1",
               "PrimaryPrivateIpAddress"
             ]
           }
@@ -628,30 +628,30 @@
       }
     },
 
-    "Worker1Route53CnameRecord": {
+    "Node4Route53CnameRecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Worker1Route53ARecord",
+      "DependsOn": "Node4Route53ARecord",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Worker Node 1 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "w", "1", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Node 4 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "n", "4", "c", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "CNAME",
-        "ResourceRecords" : [ { "Ref": "Worker1Route53ARecord" } ]
+        "ResourceRecords" : [ { "Ref": "Node4Route53ARecord" } ]
       }
     },
 
-    "Worker2Ec2InstanceNif1": {
+    "Node5Ec2InstanceNif1": {
       "Type": "AWS::EC2::NetworkInterface",
       "Properties": {
-        "Description": "Kubernetes Worker Node Host Network Interface 1",
+        "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-0cc9d368af225d9f3",
         "GroupSet": [ "sg-094b4dd5355d9ecee" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker", "2", "nif-1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "5", "nif-1" ] ] }
           },
           {
             "Key": "Email",
@@ -665,7 +665,7 @@
       }
     },
 
-    "Worker2Ec2Instance": {
+    "Node5Ec2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
@@ -673,14 +673,14 @@
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
-            "NetworkInterfaceId": { "Ref": "Worker2Ec2InstanceNif1" },
+            "NetworkInterfaceId": { "Ref": "Node5Ec2InstanceNif1" },
             "DeviceIndex": "0"
           }
         ],
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker", "2" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "5" ] ] }
           },
           {
             "Key": "Email",
@@ -696,7 +696,7 @@
           },
           {
             "Key": "Description",
-            "Value": "Kubernetes Worker Node"
+            "Value": "Kubernetes Node"
           }
         ],
         "UserData": {
@@ -709,7 +709,7 @@
                 "sudo apt update; sudo apt upgrade -y\n",
                 "# Change hostname\n",
                 "sudo hostnamectl set-hostname ",
-                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "worker", "2"] ] },
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "node", "5"] ] },
                 "\n",
                 "# Add illumio-demo.com domain in search\n",
                 "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
@@ -728,19 +728,19 @@
       }
     },
 
-    "Worker2Route53ARecord": {
+    "Node5Route53ARecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Worker2Ec2InstanceNif1",
+      "DependsOn": "Node5Ec2InstanceNif1",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Kubernetes Worker Node 2 for Cluster", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "worker", "-", "2", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Node 5 for Cluster", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "node", "-", "5", ".cluster", "-", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "A",
         "ResourceRecords" : [
           {
             "Fn::GetAtt" : [
-              "Worker2Ec2InstanceNif1",
+              "Node5Ec2InstanceNif1",
               "PrimaryPrivateIpAddress"
             ]
           }
@@ -748,30 +748,30 @@
       }
     },
 
-    "Worker2Route53CnameRecord": {
+    "Node5Route53CnameRecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Worker2Route53ARecord",
+      "DependsOn": "Node5Route53ARecord",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Worker Node 2 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "w", "2", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Node 5 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "n", "5", "c", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "CNAME",
-        "ResourceRecords" : [ { "Ref": "Worker2Route53ARecord" } ]
+        "ResourceRecords" : [ { "Ref": "Node5Route53ARecord" } ]
       }
     },
 
-    "Worker3Ec2InstanceNif1": {
+    "Node6Ec2InstanceNif1": {
       "Type": "AWS::EC2::NetworkInterface",
       "Properties": {
-        "Description": "Kubernetes Worker Node Host Network Interface 1",
+        "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-0ecc0e51d09200712",
         "GroupSet": [ "sg-094b4dd5355d9ecee" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker", "3", "nif-1" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "6", "nif-1" ] ] }
           },
           {
             "Key": "Email",
@@ -785,7 +785,7 @@
       }
     },
   
-    "Worker3Ec2Instance": {
+    "Node6Ec2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
@@ -793,14 +793,14 @@
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
-            "NetworkInterfaceId": { "Ref": "Worker3Ec2InstanceNif1" },
+            "NetworkInterfaceId": { "Ref": "Node6Ec2InstanceNif1" },
             "DeviceIndex": "0"
           }
         ],
         "Tags": [
           {
             "Key": "Name",
-            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "worker", "3" ] ] }
+            "Value": { "Fn::Join": [ "-", [ { "Ref" : "AWS::StackName" }, "node", "6" ] ] }
           },
           {
             "Key": "Email",
@@ -816,7 +816,7 @@
           },
           {
             "Key": "Description",
-            "Value": "Kubernetes Worker Node"
+            "Value": "Kubernetes Node"
           }
         ],
         "UserData": {
@@ -829,7 +829,7 @@
                 "sudo apt update; sudo apt upgrade -y\n",
                 "# Change hostname\n",
                 "sudo hostnamectl set-hostname ",
-                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "worker", "3"] ] },
+                { "Fn::Join": [ "-", [ "cluster", { "Ref": "TestClusterID" }, "node", "6"] ] },
                 "\n",
                 "# Add illumio-demo.com domain in search\n",
                 "sudo cat << EOF >> /etc/systemd/resolved.conf\n",
@@ -848,19 +848,19 @@
       }
     },
   
-    "Worker3Route53ARecord": {
+    "Node6Route53ARecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Worker3Ec2InstanceNif1",
+      "DependsOn": "Node6Ec2InstanceNif1",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Kubernetes Worker Node 3 for Cluster", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "cluster", "-", { "Ref": "TestClusterID" }, "-", "worker", "-", "3", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Kubernetes Node 3 for Cluster", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", [ "node", "-", "6", ".cluster", "-", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "A",
         "ResourceRecords" : [
           {
             "Fn::GetAtt" : [
-              "Worker3Ec2InstanceNif1",
+              "Node6Ec2InstanceNif1",
               "PrimaryPrivateIpAddress"
             ]
           }
@@ -868,93 +868,93 @@
       }
     },
   
-    "Worker3Route53CnameRecord": {
+    "Node6Route53CnameRecord": {
       "Type": "AWS::Route53::RecordSet",
-      "DependsOn": "Worker3Route53ARecord",
+      "DependsOn": "Node6Route53ARecord",
       "Properties": {
         "HostedZoneName": "illumio-demo.com.",
-        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Worker Node 3 for Cluster ", { "Ref": "TestClusterID" } ] ] },
-        "Name": { "Fn::Join": [ "", [ "c", { "Ref": "TestClusterID" }, "w", "3", ".illumio-demo.com" ] ] },
+        "Comment": { "Fn::Join": [ "", [ "Alias for Kubernetes Node 6 for Cluster ", { "Ref": "TestClusterID" } ] ] },
+        "Name": { "Fn::Join": [ "", "n", "6", [ "c", { "Ref": "TestClusterID" }, ".illumio-demo.com" ] ] },
         "TTL": "300",
         "Type": "CNAME",
-        "ResourceRecords" : [ { "Ref": "Worker3Route53ARecord" } ]
+        "ResourceRecords" : [ { "Ref": "Node6Route53ARecord" } ]
       }
     }
   
   },
 
   "Outputs": {
-    "Master1IP": {
-      "Value": { "Fn::GetAtt": [ "Master1Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
-      "Description": "IP address of master-1"
+    "Node1IP": {
+      "Value": { "Fn::GetAtt": [ "Node1Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "IP address of node-1"
     },
-    "Master1FQDN": {
-      "Value": { "Ref": "Master1Route53ARecord" },
-      "Description": "FQDN of master-1"
+    "Node1FQDN": {
+      "Value": { "Ref": "Node1Route53ARecord" },
+      "Description": "FQDN of node-1"
     },
-    "Master1FQDNAlias": {
-      "Value": { "Ref": "Master1Route53CnameRecord" },
-      "Description": "Alias FQDN of master-1"
+    "Node1FQDNAlias": {
+      "Value": { "Ref": "Node1Route53CnameRecord" },
+      "Description": "Alias FQDN of node-1"
     },
-    "Master2IP": {
-      "Value": { "Fn::GetAtt": [ "Master2Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
-      "Description": "IP address of master-2"
+    "Node2IP": {
+      "Value": { "Fn::GetAtt": [ "Node2Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "IP address of node-2"
     },
-    "Master2FQDN": {
-      "Value": { "Ref": "Master2Route53ARecord" },
-      "Description": "FQDN of master-2"
+    "Node2FQDN": {
+      "Value": { "Ref": "Node2Route53ARecord" },
+      "Description": "FQDN of node-2"
     },
-    "Master2FQDNAlias": {
-      "Value": { "Ref": "Master2Route53CnameRecord" },
-      "Description": "Alias FQDN of master-2"
+    "Node2FQDNAlias": {
+      "Value": { "Ref": "Node2Route53CnameRecord" },
+      "Description": "Alias FQDN of node-2"
     },
-    "Master3IP": {
-      "Value": { "Fn::GetAtt": [ "Master3Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
-      "Description": "IP address of master-3"
+    "Node3IP": {
+      "Value": { "Fn::GetAtt": [ "Node3Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "IP address of node-3"
     },
-    "Master3FQDN": {
-      "Value": { "Ref": "Master3Route53ARecord" },
-      "Description": "FQDN of master-3"
+    "Node3FQDN": {
+      "Value": { "Ref": "Node3Route53ARecord" },
+      "Description": "FQDN of node-3"
     },
-    "Master3FQDNAlias": {
-      "Value": { "Ref": "Master3Route53CnameRecord" },
-      "Description": "Alias FQDN of master-3"
+    "Node3FQDNAlias": {
+      "Value": { "Ref": "Node3Route53CnameRecord" },
+      "Description": "Alias FQDN of node-3"
     },
-    "Worker1IP": {
-      "Value": { "Fn::GetAtt": [ "Worker1Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
-      "Description": "IP address of worker-1"
+    "Node4IP": {
+      "Value": { "Fn::GetAtt": [ "Node4Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "IP address of node-4"
     },
-    "Worker1FQDN": {
-      "Value": { "Ref": "Worker1Route53ARecord" },
-      "Description": "FQDN of worker-1"
+    "Node4FQDN": {
+      "Value": { "Ref": "Node4Route53ARecord" },
+      "Description": "FQDN of node-4"
     },
-    "Worker1FQDNAlias": {
-      "Value": { "Ref": "Worker1Route53CnameRecord" },
-      "Description": "Alias FQDN of worker-1"
+    "Node4FQDNAlias": {
+      "Value": { "Ref": "Node4Route53CnameRecord" },
+      "Description": "Alias FQDN of node-4"
     },
-    "Worker2IP": {
-      "Value": { "Fn::GetAtt": [ "Worker2Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
-      "Description": "IP address of worker-2"
+    "Node5IP": {
+      "Value": { "Fn::GetAtt": [ "Node5Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "IP address of node-5"
     },
-    "Worker2FQDN": {
-      "Value": { "Ref": "Worker2Route53ARecord" },
-      "Description": "FQDN of worker-2"
+    "Node5FQDN": {
+      "Value": { "Ref": "Node5Route53ARecord" },
+      "Description": "FQDN of node-5"
     },
-    "Worker2FQDNAlias": {
-      "Value": { "Ref": "Worker2Route53CnameRecord" },
-      "Description": "Alias FQDN of worker-2"
+    "Node5FQDNAlias": {
+      "Value": { "Ref": "Node5Route53CnameRecord" },
+      "Description": "Alias FQDN of node-5"
     },
-    "Worker3IP": {
-      "Value": { "Fn::GetAtt": [ "Worker3Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
-      "Description": "IP address of worker-3"
+    "Node6IP": {
+      "Value": { "Fn::GetAtt": [ "Node6Ec2InstanceNif1", "PrimaryPrivateIpAddress" ] },
+      "Description": "IP address of node-6"
     },
-    "Worker3FQDN": {
-      "Value": { "Ref": "Worker3Route53ARecord" },
-      "Description": "FQDN of worker-3"
+    "Node6FQDN": {
+      "Value": { "Ref": "Node6Route53ARecord" },
+      "Description": "FQDN of node-6"
     },
-    "Worker3FQDNAlias": {
-      "Value": { "Ref": "Worker3Route53CnameRecord" },
-      "Description": "Alias FQDN of worker-3"
+    "Node6FQDNAlias": {
+      "Value": { "Ref": "Node6Route53CnameRecord" },
+      "Description": "Alias FQDN of node-6"
     }
   }
 

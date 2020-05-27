@@ -10,6 +10,7 @@
 echo ""
 echo "===> Plese provide the cluster information:"
 read -p "Enter the cluster ID: " CLUSTER_ID
+read -p "Enter the number of nodes [6 or nothing!]: " NB_NODES
 read -p "Enter the number of master nodes: " MASTER_NODES
 read -p "Enter the node OS [centos/ubuntu]: " NODE_OS
 
@@ -43,14 +44,18 @@ until [ ! -z "$(aws cloudformation describe-stacks --stack-name=k8s-tests-$CLUST
   sleep 20s
 done
 
-# Master nodes
-MASTER1_IP=$(nslookup c${CLUSTER_ID}m1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-MASTER2_IP=$(nslookup c${CLUSTER_ID}m2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-MASTER3_IP=$(nslookup c${CLUSTER_ID}m3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-# Worker nodes
-WORKER1_IP=$(nslookup c${CLUSTER_ID}w1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-WORKER2_IP=$(nslookup c${CLUSTER_ID}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
-WORKER3_IP=$(nslookup c${CLUSTER_ID}w3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+# Gathering IP addresses of the nodes
+echo ""
+echo "===> Gathering IP addresses of the nodes"
+for i in {1..$NB_NODES}; do
+  NODE${i}_IP=$(nslookup n${i}c${CLUSTER_ID} | grep Address | awk 'END { print }' | sed s'/Address: //g')
+done
+#MASTER2_IP=$(nslookup c${CLUSTER_ID}m2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+#MASTER3_IP=$(nslookup c${CLUSTER_ID}m3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+## Worker nodes
+#WORKER1_IP=$(nslookup c${CLUSTER_ID}w1 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+#WORKER2_IP=$(nslookup c${CLUSTER_ID}w2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
+#WORKER3_IP=$(nslookup c${CLUSTER_ID}w3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 
 #echo ""
 #echo "List of IP addresses for this cluster:"
@@ -72,7 +77,7 @@ cp -rpvf inventory/template-1/ inventory/cluster-$CLUSTER_ID/
 echo ""
 echo "===> Creating the list of nodes for cluster-$CLUSTER_ID"
 #declare -a NODES=(master1,$MASTER1_IP master2,$MASTER2_IP master3,$MASTER3_IP worker1,$WORKER1_IP worker2,$WORKER2_IP worker3,$WORKER3_IP)
-declare -a NODES=($MASTER1_IP $MASTER2_IP $MASTER3_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP)
+declare -a NODES=($NODE1_IP $NODE2_IP $NODE3_IP $NODE4_IP $NODE5_IP $NODE6_IP)
 echo "===> List of nodes: ${NODES[@]}"
 
 echo ""
@@ -84,7 +89,7 @@ echo "===> Creating an inventory file for cluster-$CLUSTER_ID"
 #echo "Debug - CONFIG_FILE is $CONFIG_FILE"
 # Executing script to create the hosts inventory for ansible
 #HOST_PREFIX="blah" KUBE_MASTERS_MASTERS="3" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
-HOST_PREFIX="c${CLUSTER_ID}node" KUBE_MASTERS_MASTERS="$MASTER_NODES" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
+HOST_PREFIX="node-" KUBE_MASTERS_MASTERS="$MASTER_NODES" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
 echo ""
 echo "===> Inventory file:"
 cat inventory/cluster-$CLUSTER_ID/hosts.yml
@@ -106,11 +111,11 @@ cat inventory/cluster-$CLUSTER_ID/group_vars/k8s-cluster/k8s-cluster.yml | grep 
 
 echo ""
 echo "===> Waiting for 2 min to let init scripts run"
-sleep 2m
+#sleep 2m
 
 echo ""
 echo "===> Installing Kubernetes"
-ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
+#ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
 
 #echo ""
 #echo "===> Exporting kubeconfig"
