@@ -15,11 +15,12 @@ read -p "Enter the number of master nodes: " MASTER_NODES
 echo ""
 echo "===> Results of your variables:"
 echo "Cluster ID: $CLUSTER_ID"
+echo "Number of Master nodes: $MASTER_NODES"
 
 # Node preparation in AWS
 echo ""
 echo "===> Creating a CloudFormation stack in AWS named k8s-tests-$CLUSTER_ID"
-aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-cluster.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
+aws cloudformation create-stack --stack-name k8s-tests-$CLUSTER_ID --template-body file://aws-cloudformation/6-nodes-cluster-v2.json --parameters ParameterKey=SSHKey,ParameterValue=aws_demo_sales_new ParameterKey=TestClusterID,ParameterValue=$CLUSTER_ID
 
 # Waiting for CloudFormation to be done
 echo ""
@@ -65,9 +66,9 @@ echo ""
 echo "===> Creating an inventory file for cluster-$CLUSTER_ID"
 # Debug outputs
 #KUBE_MASTERS="3"
-echo "Debug - KUBE_MASTERS is $KUBE_MASTERS"
+#echo "Debug - KUBE_MASTERS is $KUBE_MASTERS"
 #CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml
-echo "Debug - CONFIG_FILE is $CONFIG_FILE"
+#echo "Debug - CONFIG_FILE is $CONFIG_FILE"
 # Executing script to create the hosts inventory for ansible
 #HOST_PREFIX="blah" KUBE_MASTERS_MASTERS="3" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
 KUBE_MASTERS_MASTERS="$MASTER_NODES" CONFIG_FILE=inventory/cluster-$CLUSTER_ID/hosts.yml python3 contrib/inventory_builder/inventory.py ${NODES[@]}
@@ -97,6 +98,13 @@ sleep 2m
 echo ""
 echo "===> Installing Kubernetes"
 ansible-playbook -i inventory/cluster-$CLUSTER_ID/hosts.yml --become --become-user=root cluster.yml
+
+#echo ""
+#echo "===> Exporting kubeconfig"
+## Getting KUBECONFIG from Master node 1
+#scp ubuntu@c${CLUSTER_ID}m1:~/.kube/config ~/.kube/config-cluster-$CLUSTER_ID
+## Setting the KUBECONFIG environment variable
+#export KUBECONFIG=~/.kube/config-cluster-$CLUSTER_ID
 
 echo ""
 echo "===> Done!"
