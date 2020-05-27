@@ -49,6 +49,7 @@ echo ""
 echo "===> Gathering IP addresses of the nodes"
 for i in {1..$NB_NODES}; do
   NODE${i}_IP=$(nslookup n${i}c${CLUSTER_ID} | grep Address | awk 'END { print }' | sed s'/Address: //g')
+  echo "NODE${i}_IP is ${NODE${i}_IP}"
 done
 #MASTER2_IP=$(nslookup c${CLUSTER_ID}m2 | grep Address | awk 'END { print }' | sed s'/Address: //g')
 #MASTER3_IP=$(nslookup c${CLUSTER_ID}m3 | grep Address | awk 'END { print }' | sed s'/Address: //g')
