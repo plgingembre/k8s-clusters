@@ -166,7 +166,7 @@
       "Properties": {
         "Description": "Kubernetes Node 1 Host Network Interface 1",
         "SubnetId": "subnet-0c5f6b74259680d98",
-        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "GroupSet": [ "sg-099b934e44ba11b05" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
@@ -286,7 +286,7 @@
       "Properties": {
         "Description": "Kubernetes Node 2 Host Network Interface 1",
         "SubnetId": "subnet-004e78dea0bc72471",
-        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "GroupSet": [ "sg-099b934e44ba11b05" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
@@ -406,7 +406,7 @@
       "Properties": {
         "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-097cb4efa88a22c03",
-        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "GroupSet": [ "sg-099b934e44ba11b05" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
@@ -526,7 +526,7 @@
       "Properties": {
         "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-0d414c1207f6a6045",
-        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "GroupSet": [ "sg-099b934e44ba11b05" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
@@ -646,7 +646,7 @@
       "Properties": {
         "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-0cc9d368af225d9f3",
-        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "GroupSet": [ "sg-099b934e44ba11b05" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
@@ -766,7 +766,7 @@
       "Properties": {
         "Description": "Kubernetes Node Host Network Interface 1",
         "SubnetId": "subnet-0ecc0e51d09200712",
-        "GroupSet": [ "sg-094b4dd5355d9ecee" ],
+        "GroupSet": [ "sg-099b934e44ba11b05" ],
         "SourceDestCheck": "false",
         "Tags": [
           {
