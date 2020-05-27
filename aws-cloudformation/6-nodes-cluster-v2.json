@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Creates 6 Ubuntu 18.04 machines ready for Kubernetes",
+  "Description" : "Creates 6 Ubuntu 18.04 instances ready for Kubernetes",
 
   "Parameters" : {
     "SSHKey": {
@@ -189,7 +189,7 @@
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
-        "ImageId": "ami-04339448818cc22bc",
+        "ImageId": "ami-0edeb769c3a7a17dc",
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
@@ -309,7 +309,7 @@
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
-        "ImageId": "ami-04339448818cc22bc",
+        "ImageId": "ami-0edeb769c3a7a17dc",
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
@@ -429,7 +429,7 @@
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
-        "ImageId": "ami-04339448818cc22bc",
+        "ImageId": "ami-0edeb769c3a7a17dc",
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
@@ -549,7 +549,7 @@
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
-        "ImageId": "ami-04339448818cc22bc",
+        "ImageId": "ami-0edeb769c3a7a17dc",
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
@@ -669,7 +669,7 @@
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
-        "ImageId": "ami-04339448818cc22bc",
+        "ImageId": "ami-0edeb769c3a7a17dc",
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
@@ -789,7 +789,7 @@
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "InstanceType": "t3a.small",
-        "ImageId": "ami-04339448818cc22bc",
+        "ImageId": "ami-0edeb769c3a7a17dc",
         "KeyName": { "Ref": "SSHKey" },
         "NetworkInterfaces": [
           {
