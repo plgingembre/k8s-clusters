@@ -4,8 +4,8 @@ kind: Pod
 metadata:
   name: ubuntu-sshd
   #namespace: management
-  #annotations:
-  #  com.illumio.role: JumpHost
+  annotations:
+    com.illumio.role: JumpHost
   labels:
     app: ubuntu-sshd
 spec:
@@ -31,12 +31,12 @@ metadata:
   #namespace: management
   labels:
     app: ubuntu-sshd
-  #annotations:
-    #com.illumio.role: JumpHost
-    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+  annotations:
+    com.illumio.role: JumpHost
+  #  service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 spec:
   type: LoadBalancer
-  #externalTrafficPolicy: Local
+  externalTrafficPolicy: Local
   ports:
   - port: 22
     targetPort: 22

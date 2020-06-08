@@ -3,8 +3,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: echoserver
-  annotations:
-    com.illumio.pairing_key: b8c576addc28609a1a70ceb2b3cede83e802594f365fb5d309a9dd460f917317
+  #annotations:
+  #  com.illumio.pairing_key: b8c576addc28609a1a70ceb2b3cede83e802594f365fb5d309a9dd460f917317
 
 ---
 apiVersion: apps/v1
@@ -41,7 +41,7 @@ metadata:
     app: echoserver
   annotations:
     com.illumio.role: Web
-    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    #service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local

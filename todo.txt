@@ -6,6 +6,7 @@ TO DO:
 - Specify the container runtime and version
 - For calico clusters, create the calicoctl.cfg under /etc/calico with the right certs on each node and create CALICO variables on ansible-server
 - Provide an app repo from Illumio
+- Expose cluster nodes through a publicly reachable JumpHost
 
 DONE
 - Specify the number of master and worker nodes ==> change the hosts inventory file
