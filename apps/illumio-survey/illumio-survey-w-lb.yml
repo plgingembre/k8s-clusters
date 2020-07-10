@@ -1,0 +1,103 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: survey
+  #annotations:
+  #  com.illumio.pairing_key: b8c576addc28609a1a70ceb2b3cede83e802594f365fb5d309a9dd460f917317
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: illumio-survey-back
+  namespace: survey
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: illumio-survey-back
+  template:
+    metadata:
+      labels:
+        app: illumio-survey-back
+      annotations:
+        com.illumio.role: Database
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: illumio-survey-back
+        image: redis
+        ports:
+        - containerPort: 6379
+          name: redis
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: illumio-survey-back-svc
+  namespace: survey
+  annotations:
+    com.illumio.role: Database
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: illumio-survey-back
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: illumio-survey-front
+  namespace: survey
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: illumio-survey-front
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: illumio-survey-front
+      annotations:
+        com.illumio.role: Web
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: illumio-survey-front
+        image: plgingembre/illumio-survey:1.0
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+        env:
+        - name: REDIS
+          value: "illumio-survey-back-svc"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: illumio-survey-front-svc
+  namespace: survey
+  annotations:
+    com.illumio.role: Web
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+  - port: 80
+  selector:
+    app: illumio-survey-front

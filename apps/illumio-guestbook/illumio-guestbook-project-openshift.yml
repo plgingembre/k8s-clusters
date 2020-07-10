@@ -1,0 +1,12 @@
+kind: Project
+apiVersion: project.openshift.io/v1
+metadata:
+  name: guestbook
+  selfLink: /apis/project.openshift.io/v1/projects/test1
+  annotations:
+    com.illumio.pairing_key: 5439ae0f715bea284e3b74008ccfc00caef98bf5629b3db673fa4dc160711fbc
+spec:
+  finalizers:
+    - kubernetes
+status:
+  phase: Active
